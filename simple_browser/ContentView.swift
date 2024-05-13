@@ -1,40 +1,41 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State var webViewStateModel: WebViewStateModel = WebViewStateModel()
-    @State private var webAddress = "http://google.com"
-
+    @StateObject var tabs: TabsModel = TabsModel()
+    
     var body: some View {
         VStack {
-            TextField("Enter Web Address", text: $webAddress)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
-
-            Button(action: {
-                webViewStateModel.pageTitle = webAddress
-            }, label: {
-                Image(systemName: "magnifyingglass.circle.fill")
-                    .font(.title)
-            })
-            .padding()
-
-            WKView(webViewStateModel: webViewStateModel)
-                .frame(minWidth: 800, minHeight: 600)
-
             HStack {
+                ForEach(tabs.tabList) { tab in
+                        Button(action: {
+                            DispatchQueue.main.async {
+                               tabs.activeTab = tab
+                           }
+                        }, label: {
+                            Text(tab.pageTitle)
+                                .font(.title)
+                        })
+                        .padding()
+                }
                 Button(action: {
-                    webViewStateModel.goBack = true
+                    let newWebPageTab = WebPageTab()
+                    newWebPageTab.pageTitle = "https://google.com"
+                    tabs.tabList.append(newWebPageTab)
+                    DispatchQueue.main.async {
+                       tabs.activeTab = newWebPageTab
+                   }
                 }, label: {
-                    Image(systemName: "arrow.backward")
+                    Text("Add a new tab")
+                        .font(.title)
                 })
-
-                Button(action: {
-                    webViewStateModel.goForward = true
-                }, label: {
-                    Image(systemName: "arrow.forward")
-                })
+                .padding()
+                    
+            }.padding()
+            
+            if tabs.activeTab != nil && tabs.activeTab?.pageTitle != "" {
+                WebPageView(webPageModel: tabs.activeTab!)
+                    .frame(minWidth: 800, minHeight: 600)
             }
-            .padding()
         }
     }
 }

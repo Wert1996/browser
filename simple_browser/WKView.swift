@@ -2,7 +2,7 @@ import SwiftUI
 import WebKit
 
 struct WKView: NSViewRepresentable {
-    @ObservedObject var webViewStateModel: WebViewStateModel
+    @ObservedObject var webPageModel: WebPageTab
 
     typealias NSViewType = WKWebView
 
@@ -18,7 +18,7 @@ struct WKView: NSViewRepresentable {
     }
 
     func updateNSView(_ nsView: WKWebView, context: Context) {
-        if let url = URL(string: webViewStateModel.pageTitle) {
+        if let url = URL(string: self.webPageModel.pageTitle) {
             nsView.load(URLRequest(url: url))
         }
     }
@@ -30,16 +30,7 @@ struct WKView: NSViewRepresentable {
             self.parent = parent
         }
 
-        func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
-            if parent.webViewStateModel.goBack {
-                webView.goBack()
-                parent.webViewStateModel.goBack = false
-            }
-            if parent.webViewStateModel.goForward {
-                webView.goForward()
-                parent.webViewStateModel.goForward = false
-
-            }
-        }
+//        func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+//        }
     }
 }
